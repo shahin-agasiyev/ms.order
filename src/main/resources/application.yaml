@@ -1,2 +1,18 @@
 server:
-  port: 8080
+  port: 8082
+spring:
+  application:
+    name: ms.order
+  datasource:
+    url: jdbc:postgresql://localhost:5436/postgres
+    username: postgres
+    password: postgres
+  jpa:
+    open-in-view: false
+  messages:
+    basename: messages
+    encoding: UTF-8
+
+client:
+  urls:
+    ms-product: http://localhost:8081

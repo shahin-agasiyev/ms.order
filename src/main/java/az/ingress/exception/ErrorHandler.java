@@ -1,14 +1,17 @@
 package az.ingress.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import static az.ingress.exception.ErrorMessage.UNEXPECTED_ERROR;
+import static az.ingress.util.LocalizationUtil.LOCALIZATION_UTIL;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Slf4j
 @RestControllerAdvice
@@ -26,5 +29,19 @@ public class ErrorHandler {
     public ErrorResponse handle(HttpRequestMethodNotSupportedException ex) {
         log.error("HttpRequestMethodNotSupportedException: ", ex);
         return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(NOT_FOUND)
+    public ErrorResponse handle(NotFoundException ex) {
+        log.error("NotFoundException: ", ex);
+        var message = LOCALIZATION_UTIL.getMessageByKey(ex.getMessage());
+        return new ErrorResponse(message);
+    }
+
+    @ExceptionHandler(CustomFeignException.class)
+    public ResponseEntity<ErrorResponse> handle(CustomFeignException ex) {
+        log.error("CustomFeignException ", ex);
+        return ResponseEntity.status(ex.getStatusCode()).body(new ErrorResponse(ex.getMessage()));
     }
 }
